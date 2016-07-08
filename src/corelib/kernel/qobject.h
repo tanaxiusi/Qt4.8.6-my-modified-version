@@ -81,6 +81,16 @@ Q_CORE_EXPORT void qt_qFindChildren_helper(const QObject *parent, const QString 
                                            const QMetaObject &mo, QList<void *> *list);
 Q_CORE_EXPORT QObject *qt_qFindChild_helper(const QObject *parent, const QString &name, const QMetaObject &mo);
 
+#ifdef qdoc
+	#define QT_DEFAULT_CONNECTION_TYPE Qt::AutoConnection
+#else
+#ifdef QT3_SUPPORT
+	#define QT_DEFAULT_CONNECTION_TYPE Qt::AutoCompatConnection
+#else
+	#define QT_DEFAULT_CONNECTION_TYPE Qt::AutoConnection
+#endif
+#endif
+
 class
 #if defined(__INTEL_COMPILER) && defined(Q_OS_WIN)
 Q_CORE_EXPORT
@@ -200,46 +210,66 @@ public:
     void installEventFilter(QObject *);
     void removeEventFilter(QObject *);
 
+#ifndef QT_BUILD_CORE_LIB
 
     static bool connect(const QObject *sender, const char *signal,
-                        const QObject *receiver, const char *member, Qt::ConnectionType =
-#ifdef qdoc
-                        Qt::AutoConnection
-#else
-#ifdef QT3_SUPPORT
-                        Qt::AutoCompatConnection
-#else
-                        Qt::AutoConnection
-#endif
-#endif
-        );
+                        const QObject *receiver, const char *member,
+						Qt::ConnectionType type = QT_DEFAULT_CONNECTION_TYPE,
+						Qt::ConnectionPosition position = Qt::ConnectAtEnd);
         
     static bool connect(const QObject *sender, const QMetaMethod &signal,
                         const QObject *receiver, const QMetaMethod &method,
-                        Qt::ConnectionType type = 
-#ifdef qdoc
-                        Qt::AutoConnection
-#else
-#ifdef QT3_SUPPORT
-                        Qt::AutoCompatConnection
-#else
-                        Qt::AutoConnection
-#endif
-#endif
-        );
+						Qt::ConnectionType type = QT_DEFAULT_CONNECTION_TYPE,
+						Qt::ConnectionPosition position = Qt::ConnectAtEnd);
 
     inline bool connect(const QObject *sender, const char *signal,
-                        const char *member, Qt::ConnectionType type =
-#ifdef qdoc
-                        Qt::AutoConnection
+                        const char *member, Qt::ConnectionType type = QT_DEFAULT_CONNECTION_TYPE,
+						Qt::ConnectionPosition position = Qt::ConnectAtEnd) const
+	{
+		return connect(sender, signal, this, member, type, position);
+	}
+
 #else
-#ifdef QT3_SUPPORT
-                        Qt::AutoCompatConnection
-#else
-                        Qt::AutoConnection
+	// second modified version
+	static bool connect(const QObject *sender, const char *signal,
+		const QObject *receiver, const char *member,
+		Qt::ConnectionType type, Qt::ConnectionPosition position);
+	static bool connect(const QObject *sender, const QMetaMethod &signal,
+		const QObject *receiver, const QMetaMethod &method,
+		Qt::ConnectionType type, Qt::ConnectionPosition position);
+	inline bool connect(const QObject *sender, const char *signal, const char *member,
+		Qt::ConnectionType type, Qt::ConnectionPosition position) const
+	{
+		return connect(sender, signal, this, member, type, position);
+	}
+
+	// first modified version
+	static bool connect(const QObject *sender, const char *signal,
+		const QObject *receiver, const char *member,
+		Qt::ConnectionType type, void * relocationDummy);
+	static bool connect(const QObject *sender, const QMetaMethod &signal,
+		const QObject *receiver, const QMetaMethod &method,
+		Qt::ConnectionType type, void * relocationDummy);
+	inline bool connect(const QObject *sender, const char *signal, const char *member,
+		Qt::ConnectionType type, void * relocationDummy) const
+	{
+		return connect(sender, signal, member, type, Qt::ConnectAtEnd);
+	}
+
+	// original version
+	static bool connect(const QObject *sender, const char *signal,
+		const QObject *receiver, const char *member,
+		Qt::ConnectionType type = QT_DEFAULT_CONNECTION_TYPE);
+	static bool connect(const QObject *sender, const QMetaMethod &signal,
+		const QObject *receiver, const QMetaMethod &method,
+		Qt::ConnectionType type = QT_DEFAULT_CONNECTION_TYPE);
+	inline bool connect(const QObject *sender, const char *signal,
+		const char *member, Qt::ConnectionType type = QT_DEFAULT_CONNECTION_TYPE) const
+	{
+		return connect(sender, signal, member, type, Qt::ConnectAtEnd);
+	}
+
 #endif
-#endif
-        ) const;
 
     static bool disconnect(const QObject *sender, const char *signal,
                            const QObject *receiver, const char *member);
@@ -334,9 +364,6 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_reregisterTimers(void *))
 };
 
-inline bool QObject::connect(const QObject *asender, const char *asignal,
-                             const char *amember, Qt::ConnectionType atype) const
-{ return connect(asender, asignal, this, amember, atype); }
 
 #ifndef QT_NO_USERDATA
 class Q_CORE_EXPORT QObjectUserData {

@@ -156,7 +156,7 @@ public:
     QObjectList receiverList(const char *signal) const;
     QObjectList senderList() const;
 
-    void addConnection(int signal, Connection *c);
+    void addConnection(int signal, Connection *c, bool connectAtBegin);
     void cleanConnectionLists();
 
 #ifdef QT3_SUPPORT

@@ -1472,7 +1472,13 @@ public:
         QueuedConnection,
         AutoCompatConnection,
         BlockingQueuedConnection,
+        ParallelBlockingQueuedConnection, //like BlockingQueuedConnection, but the receivers will begin together
         UniqueConnection =  0x80
+    };
+
+    enum ConnectionPosition {
+        ConnectAtEnd = 0, // default
+        ConnectAtBegin // the connection will be inserted at first, and be called firstly
     };
 
     enum ShortcutContext {
