@@ -869,9 +869,9 @@ void qt_init(QApplicationPrivate *priv, int)
         ptrUpdateLayeredWindowIndirect = qt_updateLayeredWindowIndirect;
 
     // Notify Vista and Windows 7 that we support highter DPI settings
-    ptrSetProcessDPIAware = (PtrSetProcessDPIAware)user32.resolve("SetProcessDPIAware");
-    if (ptrSetProcessDPIAware)
-        ptrSetProcessDPIAware();
+    //ptrSetProcessDPIAware = (PtrSetProcessDPIAware)user32.resolve("SetProcessDPIAware");
+    //if (ptrSetProcessDPIAware)
+    //    ptrSetProcessDPIAware();
 #endif
 
 #ifndef QT_NO_GESTURES

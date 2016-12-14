@@ -210,7 +210,7 @@ public:
     void installEventFilter(QObject *);
     void removeEventFilter(QObject *);
 
-#ifndef QT_BUILD_CORE_LIB
+#ifndef QT_BUILDING_QT
 
     static bool connect(const QObject *sender, const char *signal,
                         const QObject *receiver, const char *member,
